@@ -6,7 +6,7 @@
 				data from the CustomerOrders table over all partitions
 
 				THIS SCRIPT IS PART OF THE TRACK:
-				"Database Partitioning"
+					Session - Introduction to Partitioning
 
 	Date:		December 2024
 
@@ -179,7 +179,8 @@ GO
 */
 ALTER TABLE demo.orders
 ADD CONSTRAINT pk_demo_orders PRIMARY KEY CLUSTERED
-(o_orderkey);
+(o_orderkey)
+WITH (SORT_IN_TEMPDB = ON);
 GO
 
 /*
@@ -195,9 +196,14 @@ ADD CONSTRAINT pk_demo_orders PRIMARY KEY CLUSTERED
 (
 	o_orderkey,
 	o_orderdate
-);
+)
+WITH (SORT_IN_TEMPDB = ON);
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
 SELECT	[Schema.Table],
         [Index ID],
         Structure,

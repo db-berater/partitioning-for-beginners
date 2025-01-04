@@ -1,0 +1,12 @@
+03 - create the partition scheme.sql - Falsches Ergebnis zwischen FG und Range!
+
+- Hint in dbo.get_partition_layout_info about the framework
+- check 03 - switch out an existing partition (seems not to work properly/expected)
+- Check the Powerpoint - there a slides missing!
+- repair all links in presentation to example scripts!
+
+
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/

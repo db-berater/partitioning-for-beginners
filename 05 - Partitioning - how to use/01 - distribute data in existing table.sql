@@ -28,6 +28,10 @@ EXEC dbo.sp_drop_indexes
     @check_only = 0;
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
 SELECT	[Schema.Table],
         [Index ID],
         Structure,
@@ -60,6 +64,10 @@ WITH (SORT_IN_TEMPDB = ON)
 ON ps_o_orderdate(o_orderdate)
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
 SELECT	[Schema.Table],
         [Index ID],
         Structure,

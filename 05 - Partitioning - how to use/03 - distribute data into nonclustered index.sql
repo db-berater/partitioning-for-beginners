@@ -6,7 +6,7 @@
 				key for this demos
 
 				THIS SCRIPT IS PART OF THE TRACK:
-				"SQL Server Partitioning"
+					Session - Introduction to Partitioning
 
 	Date:		December 2024
 
@@ -38,12 +38,14 @@ IF EXISTS
 	NOTE: The partition scheme has not been named explicitly!
 */
 CREATE NONCLUSTERED INDEX nix_demo_orders_o_custkey
-ON demo.orders
-(o_custkey) INCLUDE (o_totalprice);
+ON demo.orders (o_custkey)
+INCLUDE (o_totalprice)
+WITH (SORT_IN_TEMPDB = ON);
 GO
 
 /*
-	How is the index organized in the database?
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
 */
 ;WITH i
 AS
@@ -96,7 +98,8 @@ ON demo.orders
 (
 	o_custkey
 )
-WITH (DROP_EXISTING = ON)
+INCLUDE (o_totalprice)
+WITH (SORT_IN_TEMPDB = ON, DROP_EXISTING = ON)
 ON [PRIMARY];
 GO
 

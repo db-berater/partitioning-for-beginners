@@ -18,7 +18,7 @@ USE master;
 GO
 
 /*
-	Make sure you've executed the script 0000 - sp_restore_erp_demo.sql
+	Make sure you've executed the script 00 - dbo.sp_restore_erp_demo.sql
 	before you run this code!
 */
 EXEC dbo.sp_restore_ERP_demo @query_store = 1;

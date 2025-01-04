@@ -1,0 +1,33 @@
+{
+    "version": 1,
+    "workspace": {
+        "name": "01 - Session: Introduction to Partitioning",
+        "created": "2024-12-14T00:00:00.000Z",
+        "modified": "2024-12-14T00:00:00.000Z",
+        "timeRange": "FiveMinutes",
+        "isCluster": false
+    },
+    "counters": [
+        {
+            "object": "MSSQL$SQL_2022:User Settable",
+            "instances": [
+                {
+                    "instanceName": "User counter 1"
+                },
+                {
+                    "instanceName": "User counter 2"
+                },
+                {
+                    "instanceName": "User counter 3"
+                },
+                {
+                    "instanceName": "User counter 4"
+                }
+            ],
+            "counters": [
+                "Query"
+            ],
+            "type": "Line"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+﻿################################################################################
+# excluded file extensions added/changed by db Berater GmbH - 2025
+################################################################################
+
+*.vsidx
+*.wsuo
+*.sqlite
+DocumentLayout*.json
+VSWorkspace*.json

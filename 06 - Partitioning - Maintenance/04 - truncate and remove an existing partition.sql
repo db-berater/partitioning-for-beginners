@@ -61,12 +61,13 @@ GO
 */
 BEGIN TRANSACTION delete_data
 GO
-	DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2011-01-01');
+	DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2012-01-01');
 	SELECT	@partition_number;
 
 	TRUNCATE TABLE dbo.orders WITH (PARTITIONS(@partition_number));
 	
-	SELECT	resource_type,
+	SELECT	DISTINCT
+			resource_type,
             index_id,
             resource_description,
             request_mode,
@@ -79,15 +80,15 @@ GO
 	/*
 		Now we can MERGE two partitions into ONE partition
 	*/
-	ALTER PARTITION FUNCTION pf_o_orderdate() MERGE RANGE ('2011-01-01');
+	ALTER PARTITION FUNCTION pf_o_orderdate() MERGE RANGE ('2012-01-01');
 COMMIT TRANSACTION delete_data;
 GO
 
 /*
 	Let's remove the physical representation of the partitioned table
 */
-ALTER DATABASE [ERP_Demo] REMOVE FILE [orders_2011];
-ALTER DATABASE [ERP_Demo] REMOVE FILEGROUP [orders_2011];
+ALTER DATABASE [ERP_Demo] REMOVE FILE [orders_2012];
+ALTER DATABASE [ERP_Demo] REMOVE FILEGROUP [orders_2012];
 GO
 
 SELECT	[Schema.Table],

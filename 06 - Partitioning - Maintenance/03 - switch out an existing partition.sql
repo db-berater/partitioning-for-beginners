@@ -8,16 +8,6 @@
 	Date:		December 2024
 
 	SQL Server Version: >=SQL 2016
-------------------------------------------------------------------------------
-	Written by Uwe Ricken, db Berater GmbH
-
-	This script is intended only as a supplement to demos and lectures
-	given by Uwe Ricken.  
-  
-	THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF 
-	ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
-	TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-	PARTICULAR PURPOSE.
 	============================================================================
 */
 SET NOCOUNT ON;
@@ -28,9 +18,8 @@ USE ERP_Demo;
 GO
 
 /*
-	The business don't want to have data older than 10 years
-	We shall remove all data older than 10 years from the actual
-	year.
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
 */
 SELECT	[Schema.Table],
         [Index ID],
@@ -58,7 +47,7 @@ GO
 */
 
 /*
-	Example 2:	We truncate data of the year 2011 and
+	Example 2:	We switch out the partition for the year 2011 and
 				afterwards we drop the partition
 */
 
@@ -118,6 +107,25 @@ ADD CONSTRAINT pk_switch_orders PRIMARY KEY CLUSTERED
 );
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
+SELECT	[Schema.Table],
+        [Index ID],
+        Structure,
+        [Index],
+        rows,
+        [In-Row MB],
+        [LOB MB],
+        [Partition #],
+        [Partition Function],
+        [Boundary Type],
+        [Boundary Point],
+        Filegroup
+FROM	dbo.get_partition_layout_info(N'switch.orders', N'1')
+GO
+
 BEGIN TRANSACTION switch_data
 GO
 	DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2011-01-01');
@@ -143,14 +151,58 @@ GO
 COMMIT TRANSACTION delete_data;
 GO
 
+DROP INDEX nix_orders_o_custkey ON dbo.orders;
+GO
+
+BEGIN TRANSACTION switch_data
+GO
+	DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2011-01-01');
+	SELECT	@partition_number;
+
+	ALTER TABLE dbo.orders SWITCH PARTITION @partition_number TO switch.orders PARTITION @partition_number;
+	DROP TABLE IF EXISTS switch.orders;
+
+	SELECT	DISTINCT
+			resource_type,
+            index_id,
+            resource_description,
+            request_mode,
+            request_type,
+            request_status,
+            request_session_id,
+            blocking_session_id
+	FROM	dbo.get_locking_status(@@SPID);
+
+	/*
+		Now we can MERGE two partitions into ONE partition
+	*/
+	ALTER PARTITION FUNCTION pf_o_orderdate() MERGE RANGE ('2011-01-01');
+COMMIT TRANSACTION delete_data;
+GO
+
+SELECT	[Schema.Table],
+        [Index ID],
+        Structure,
+        [Index],
+        rows,
+        [In-Row MB],
+        [LOB MB],
+        [Partition #],
+        [Partition Function],
+        [Boundary Type],
+        [Boundary Point],
+        Filegroup
+FROM	dbo.get_partition_layout_info(N'dbo.orders', N'1')
+GO
+
 DROP TABLE IF EXISTS switch.orders;
 GO
 
 /*
 	Let's remove the physical representation of the partitioned table
 */
-ALTER DATABASE [ERP_Demo] REMOVE FILE [orders_2012];
-ALTER DATABASE [ERP_Demo] REMOVE FILEGROUP [orders_2012];
+ALTER DATABASE [ERP_Demo] REMOVE FILE [orders_2011];
+ALTER DATABASE [ERP_Demo] REMOVE FILEGROUP [orders_2011];
 GO
 
 SELECT	[Schema.Table],

@@ -88,7 +88,8 @@ ALTER PARTITION FUNCTION pf_o_orderdate() SPLIT RANGE ('2024-01-01');
 GO
 
 /*
-	See the results of the METADATA-Operation...
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
 */
 SELECT	[Schema.Table],
         [Index ID],
@@ -146,6 +147,10 @@ FROM	source
 		) AS last_number;
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
 SELECT	[Schema.Table],
         [Index ID],
         Structure,

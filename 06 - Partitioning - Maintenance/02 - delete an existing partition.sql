@@ -63,7 +63,8 @@ GO
 			AND o_orderdate <= '2010-12-31';
 	GO
 
-	SELECT	resource_type,
+	SELECT	DISTINCT
+			resource_type,
             index_id,
             resource_description,
             request_mode,
@@ -88,6 +89,10 @@ ALTER DATABASE [ERP_Demo] REMOVE FILE [orders_2010];
 ALTER DATABASE [ERP_Demo] REMOVE FILEGROUP [orders_2010];
 GO
 
+/*
+    The used function is part of the framework of the demo database ERP_Demo.
+    Download: https://www.db-berater.de/downloads/ERP_DEMO_2012.BAK
+*/
 SELECT	[Schema.Table],
         [Index ID],
         Structure,

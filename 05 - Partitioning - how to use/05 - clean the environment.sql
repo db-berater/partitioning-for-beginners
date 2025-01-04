@@ -1,0 +1,13 @@
+USE ERP_Demo;
+GO
+
+DROP TABLE IF EXISTS demo.regions;
+DROP TABLE IF EXISTS demo.nations;
+DROP TABLE IF EXISTS demo.customers;
+GO
+
+DROP TABLE IF EXISTS demo.orders;
+GO
+
+DROP SCHEMA IF EXISTS demo;
+GO

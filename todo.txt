@@ -1,6 +1,5 @@
 03 - create the partition scheme.sql - Falsches Ergebnis zwischen FG und Range!
 
-- Hint in dbo.get_partition_layout_info about the framework
 - check 03 - switch out an existing partition (seems not to work properly/expected)
 - Check the Powerpoint - there a slides missing!
 - repair all links in presentation to example scripts!

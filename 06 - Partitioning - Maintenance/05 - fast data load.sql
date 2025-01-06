@@ -27,19 +27,24 @@ GO
 USE ERP_Demo;
 GO
 
+/* Make sure we have the default settings for objects */
+ALTER TABLE dbo.orders
+SET	(LOCK_ESCALATION = TABLE);
+GO
+
 SELECT	[Schema.Table],
         [Index ID],
         Structure,
         [Index],
-        rows,
+        [rows],
         [In-Row MB],
         [LOB MB],
         [Partition #],
         [Partition Function],
         [Boundary Type],
         [Boundary Point],
-        Filegroup
-FROM	dbo.get_partition_info(N'dbo.orders', 1);
+        [Filegroup]
+FROM	dbo.get_partition_layout_info(N'dbo.orders', 1);
 GO
 
 /*
@@ -49,28 +54,28 @@ GO
 	- We create a new Filegroup and a database file
 	- we SPLIT() the partition function to add the year 2025
 */
-IF NOT EXISTS (SELECT * FROM sys.filegroups WHERE name = N'orders_2025')
-	ALTER DATABASE ERP_Demo ADD FILEGROUP [orders_2025];
+IF NOT EXISTS (SELECT * FROM sys.filegroups WHERE name = N'orders_2024')
+	ALTER DATABASE ERP_Demo ADD FILEGROUP [orders_2024];
 	GO
 
-IF NOT EXISTS (SELECT * FROM sys.master_files WHERE database_id = DB_ID() AND name = N'orders_2025')
+IF NOT EXISTS (SELECT * FROM sys.master_files WHERE database_id = DB_ID() AND name = N'orders_2024')
 BEGIN
 	DECLARE	@default_path	NVARCHAR(128) = CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(128));
 	DECLARE	@sql_stmt		NVARCHAR(2048) = N'
 ALTER DATABASE ERP_Demo
 ADD FILE
 (
-	NAME = N''orders_2025'',
-	FILENAME = ''' + @default_path + N'orders_2025.ndf'',
+	NAME = N''orders_2024'',
+	FILENAME = ''' + @default_path + N'orders_2024.ndf'',
 	SIZE = 1024MB,
 	FILEGROWTH = 1024MB
 )
-TO FILEGROUP [orders_2025];';
+TO FILEGROUP [orders_2024];';
 	EXEC sp_executesql @sql_stmt;
 END
 GO
 
-ALTER PARTITION SCHEME ps_o_orderdate NEXT USED [orders_2025];
+ALTER PARTITION SCHEME ps_o_orderdate NEXT USED [orders_2024];
 GO
 
 /*
@@ -78,24 +83,21 @@ GO
 	until we change the partition function to route everything from
 	the year 2024 into a new partition.
 */
-ALTER PARTITION FUNCTION pf_o_orderdate() SPLIT RANGE ('2025-01-01');
+ALTER PARTITION FUNCTION pf_o_orderdate() SPLIT RANGE ('2024-01-01');
 GO
-
-DROP INDEX nix_orders_o_custkey ON dbo.orders;
-SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.orders', N'U');
 
 SELECT	[Schema.Table],
         [Index ID],
         Structure,
         [Index],
-        rows,
+        [rows],
         [In-Row MB],
         [LOB MB],
         [Partition #],
         [Partition Function],
         [Boundary Type],
         [Boundary Point],
-        Filegroup
+        [Filegroup]
 FROM	dbo.get_partition_layout_info(N'dbo.orders', 1);
 GO
 
@@ -103,8 +105,8 @@ GO
 	Prepare the data in UploadData table
 */
 UPDATE	ud
-SET		ud.o_orderdate = DATEFROMPARTS(2025, MONTH(ud.o_orderdate), DAY(ud.o_orderdate))
-FROM	dbo.UploadData AS ud
+SET		ud.o_orderdate = DATEFROMPARTS(2024, MONTH(ud.o_orderdate), DAY(ud.o_orderdate))
+FROM	dbo.UploadData AS ud WITH (TABLOCK)
 WHERE	(
 			ud.o_orderdate >= '1992-03-01'
 			AND ud.o_orderdate <= '1992-12-31'
@@ -121,8 +123,7 @@ GO
 	;WITH source
 	AS
 	(
-		SELECT	TOP (50000)
-				o_orderdate									AS	o_orderdate,
+		SELECT	o_orderdate									AS	o_orderdate,
 				ROW_NUMBER() OVER (ORDER BY o_orderdate)	AS o_orderkey,
 				o_custkey,
 				o_orderpriority,
@@ -132,8 +133,8 @@ GO
 				o_totalprice,
 				o_comment
 		FROM	dbo.UploadData
-		WHERE	o_orderdate >= '2025-01-01'
-				AND o_orderdate <= '2025-12-31'
+		WHERE	o_orderdate >= '2024-01-01'
+				AND o_orderdate <= '2024-12-31'
 	)
 	INSERT INTO dbo.orders
 	(o_orderdate, o_orderkey, o_custkey, o_orderpriority, o_shippriority, o_clerk, o_orderstatus, o_totalprice, o_comment)
@@ -154,25 +155,51 @@ GO
 			) AS last_number;
 	GO
 
-	SELECT	DISTINCT
-			resource_type,
-            index_id,
-            resource_description,
-            request_mode,
-            request_type,
-            request_status,
-            request_session_id,
-            blocking_session_id
-	FROM	dbo.get_locking_status(@@SPID)
-	WHERE	resource_type IN(N'OBJECT', N'HOBT', N'EXTENT')
-			AND resource_description NOT IN (N'get_locking_status', N'sysrowsets')
+	;WITH l
+	AS
+	(
+		SELECT	DISTINCT
+				resource_type,
+				object_name,
+				partition_number,
+				index_name,
+				index_id,
+				request_mode,
+				request_type,
+				request_status,
+				sort_order
+		FROM	dbo.get_locking_status(@@SPID)
+		WHERE	resource_type IN(N'OBJECT', N'HOBT')
+				AND resource_description NOT LIKE 'sys%'
+				AND resource_description <> N'get_locking_status'
+	)
+	SELECT	resource_type,
+			object_name,
+			partition_number,
+			index_name,
+			index_id,
+			request_mode,
+			request_type,
+			request_status
+	FROM	l
 	ORDER BY
-			resource_type DESC;
+			sort_order ASC;
 
-	SELECT * FROM dbo.get_partition_layout_info(N'dbo.orders', 1)
+	SELECT	[Schema.Table],
+			[Index ID],
+			Structure,
+			[index],
+			[rows],
+			[In-Row MB],
+			[lob mb],
+			[Partition #],
+			[Partition Function],
+			[Boundary Type],
+			[Filegroup]
+	FROM	dbo.get_partition_layout_info(N'dbo.orders', 1)
 
-	SELECT	@@TRANCOUNT;
-ROLLBACK;
+WHILE @@TRANCOUNT > 0
+	ROLLBACK;
 GO
 
 /*
@@ -188,9 +215,8 @@ GO
 	;WITH source
 	AS
 	(
-		SELECT	TOP (50000)
-				DATEFROMPARTS(2025, MONTH(o_orderdate), DAY(o_orderdate))	AS	o_orderdate,
-				ROW_NUMBER() OVER (ORDER BY o_orderdate)					AS o_orderkey,
+		SELECT	o_orderdate									AS	o_orderdate,
+				ROW_NUMBER() OVER (ORDER BY o_orderdate)	AS o_orderkey,
 				o_custkey,
 				o_orderpriority,
 				o_shippriority,
@@ -199,8 +225,8 @@ GO
 				o_totalprice,
 				o_comment
 		FROM	dbo.UploadData
-		WHERE	o_orderdate >= '1992-01-01'
-				AND o_orderdate <= '1992-12-31'
+		WHERE	o_orderdate >= '2024-01-01'
+				AND o_orderdate <= '2024-12-31'
 	)
 	INSERT INTO dbo.orders
 	(o_orderdate, o_orderkey, o_custkey, o_orderpriority, o_shippriority, o_clerk, o_orderstatus, o_totalprice, o_comment)
@@ -221,18 +247,36 @@ GO
 			) AS last_number;
 	GO
 
-	SELECT	DISTINCT
-			resource_type,
-            index_id,
-            resource_description,
-            request_mode,
-            request_type,
-            request_status,
-            request_session_id,
-            blocking_session_id
-	FROM	dbo.get_locking_status(@@SPID)
-	WHERE	resource_type IN (N'OBJECT', N'HoBT');
+	;WITH l
+	AS
+	(
+		SELECT	DISTINCT
+				resource_type,
+				object_name,
+				partition_number,
+				index_name,
+				index_id,
+				request_mode,
+				request_type,
+				request_status,
+				sort_order
+		FROM	dbo.get_locking_status(@@SPID)
+		WHERE	resource_type IN(N'OBJECT', N'HOBT')
+				AND resource_description NOT LIKE 'sys%'
+				AND resource_description <> N'get_locking_status'
+	)
+	SELECT	resource_type,
+			object_name,
+			partition_number,
+			index_name,
+			index_id,
+			request_mode,
+			request_type,
+			request_status
+	FROM	l
+	ORDER BY
+			sort_order ASC;
 
-	SELECT	@@TRANCOUNT;
-ROLLBACK;
+WHILE @@TRANCOUNT > 0
+	ROLLBACK;
 GO

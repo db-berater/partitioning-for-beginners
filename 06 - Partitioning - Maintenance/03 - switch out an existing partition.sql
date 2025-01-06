@@ -87,12 +87,17 @@ ON ps_o_orderdate (o_orderdate);
 GO
 
 /*
-	Again we need to know the partition number of data from 2012
+	Again we need to know the partition number of data from 2011
 */
-DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2011-01-01');
-SELECT	@partition_number;
+BEGIN TRANSACTION
+GO
+    DECLARE	@partition_number	INT = $PARTITION.pf_o_orderdate('2011-01-01');
+    SELECT	@partition_number;
 
-ALTER TABLE dbo.orders SWITCH PARTITION @partition_number TO switch.orders PARTITION @partition_number;
+    ALTER TABLE dbo.orders SWITCH PARTITION @partition_number TO switch.orders PARTITION @partition_number;
+    GO
+
+COMMIT TRANSACTION;
 GO
 
 /*
@@ -147,11 +152,20 @@ GO
 	/*
 		Now we can MERGE two partitions into ONE partition
 	*/
-	ALTER PARTITION FUNCTION pf_o_orderdate() MERGE RANGE ('2012-01-01');
-COMMIT TRANSACTION delete_data;
-GO
+	ALTER PARTITION FUNCTION pf_o_orderdate() MERGE RANGE ('2011-01-01');
 
-DROP INDEX nix_orders_o_custkey ON dbo.orders;
+	SELECT	DISTINCT
+			resource_type,
+            index_id,
+            resource_description,
+            request_mode,
+            request_type,
+            request_status,
+            request_session_id,
+            blocking_session_id
+	FROM	dbo.get_locking_status(@@SPID)
+    WHERE   resource_type IN (N'METADATA', N'OBJECT', N'ALLOCATION_UNIT');
+COMMIT TRANSACTION delete_data;
 GO
 
 BEGIN TRANSACTION switch_data

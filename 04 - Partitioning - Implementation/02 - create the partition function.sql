@@ -40,6 +40,9 @@ SELECT	DISTINCT YEAR(o_orderdate)
 FROM	dbo.orders;
 GO
 
+SELECT * FROM #available_years;
+GO
+
 IF EXISTS (SELECT * FROM sys.partition_functions WHERE name = N'pf_o_orderdate')
 	DROP PARTITION FUNCTION pf_o_orderdate;
 GO
@@ -76,6 +79,7 @@ SELECT	pf.type_desc,
 FROM	sys.partition_functions AS pf
 		INNER JOIN sys.partition_range_values AS prv
 		ON (pf.function_id = prv.function_id)
+WHERE	pf.name = N'pf_o_orderdate'
 ORDER BY
 		prv.boundary_id;
 GO

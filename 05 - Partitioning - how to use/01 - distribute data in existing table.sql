@@ -44,7 +44,7 @@ SELECT	[Schema.Table],
         [Boundary Type],
         [Boundary Point],
         Filegroup
-FROM	dbo.get_partition_layout_info(N'dbo.orders', 1);
+FROM	dbo.get_partition_layout_info(N'dbo.orders', 0);
 GO
 
 /*

@@ -214,3 +214,10 @@ ORDER BY
 		DATE_BUCKET(YEAR, 1, o_orderdate)
 OPTION	(MAXDOP 4, QUERYTRACEON 9130);
 GO
+
+/*
+	Clean the kitchen before we go to the next chapter
+*/
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.orders', N'U') AND name = N'nix_orders_o_custkey')
+	DROP INDEX nix_orders_o_custkey ON dbo.orders;
+	GO

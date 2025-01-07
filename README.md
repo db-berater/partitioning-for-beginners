@@ -1,4 +1,5 @@
-# Workshop - Making Bad Codes Better
+<a href="URL_REDIRECT" target="blank"><img align="center" src="https://www.db-berater.de/wp-content/uploads/2015/03/db-berater-gmbh-logo.jpg" height="100" /></a>
+# Session - Partitioning for Beginners
 This repository contains all codes for my session "Partitioning for Beginners". The target group for this session are experienced database programmers who want to use partitioning for their databases.
 
 This session provides an overview of the basics of partitioning with Microsoft SQL Server. The session is always run with the latest version of Microsoft SQL Server.
@@ -23,11 +24,9 @@ The last version of the demo database can be downloaded here:
 > PARTICULAR PURPOSE.**
 
 **Note**
-The database contains a framework for all workshops / sessions from db Berater GmbH
+The demo database contains a framework for all workshops / sessions from db Berater GmbH
 + Stored Procedures
 + User Definied Inline Functions
-
-Workshop Scripts for SQL Server Workshop "Partitioning for Beginners"
 
 # Folder structure
 + Each topic is stored in a separate folder (e.g. 01 - Documents and Preparation)

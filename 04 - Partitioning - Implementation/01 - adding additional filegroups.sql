@@ -33,6 +33,9 @@ SELECT	DISTINCT YEAR(o_orderdate)
 FROM	dbo.orders;
 GO
 
+SELECT * FROM #available_years;
+GO
+
 
 /*
 	For the implementation of the different filegroups we put all

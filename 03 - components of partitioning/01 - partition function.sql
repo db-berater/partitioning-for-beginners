@@ -36,18 +36,14 @@ GO
 ;WITH l
 AS
 (
-	SELECT	-10	AS	value
-
-	UNION ALL
-
-	SELECT	[value] + 1
-	FROM	l
-	WHERE	[value] < 200
+	SELECT	x.value
+	FROM	(
+				VALUES (-10), (1), (9), (10), (99), (100), (200)
+			) AS x (value)
 )
 SELECT	*,
 		$PARTITION.pf_demo([value]) AS partition_id
-FROM	l
-OPTION	(MAXRECURSION 0);
+FROM	l;
 GO
 
 /*
@@ -70,16 +66,25 @@ GO
 ;WITH d
 AS
 (
-	SELECT	CAST('2023-12-31' AS DATE)	AS	[value]
-	UNION ALL
-	SELECT	DATEADD(DAY, 1, [value])
-	FROM	d
-	WHERE	[value]< '2024-03-31'
+	SELECT	*
+	FROM	(
+				VALUES	('2023-12-13'),
+						('2024-01-01'),
+						('2024-01-02'),
+						('2024-02-18'),
+						('2024-03-23'),
+						('2024-03-27'),
+						('2024-04-24'),
+						('2024-04-30'),
+						('2024-08-22'),
+						('2024-10-11'),
+						('2024-12-24'),
+						('2024-12-31')
+			) AS x (value)
 )
 SELECT	*,
 		$PARTITION.pf_demo([value]) AS partition_id
-FROM	d
-OPTION	(MAXRECURSION 0);
+FROM	d;
 GO
 
 /*
@@ -102,17 +107,27 @@ GO
 ;WITH d
 AS
 (
-	SELECT	CAST('2023-12-31' AS DATE)	AS	[value]
-	UNION ALL
-	SELECT	DATEADD(DAY, 1, [value])
-	FROM	d
-	WHERE	[value]< '2024-03-31'
+	SELECT	*
+	FROM	(
+				VALUES	('2023-12-13'),
+						('2024-01-01'),
+						('2024-01-02'),
+						('2024-02-18'),
+						('2024-03-23'),
+						('2024-03-27'),
+						('2024-04-24'),
+						('2024-04-30'),
+						('2024-08-22'),
+						('2024-10-11'),
+						('2024-12-24'),
+						('2024-12-31')
+			) AS x (value)
 )
 SELECT	*,
 		$PARTITION.pf_demo([value]) AS partition_id
-FROM	d
-OPTION	(MAXRECURSION 0);
+FROM	d;
 GO
+
 
 /*
 	Fix it by adjusting the boundary values!
@@ -133,16 +148,25 @@ GO
 ;WITH d
 AS
 (
-	SELECT	CAST('2023-12-31' AS DATE)	AS	[value]
-	UNION ALL
-	SELECT	DATEADD(DAY, 1, [value])
-	FROM	d
-	WHERE	[value]< '2024-03-31'
+	SELECT	*
+	FROM	(
+				VALUES	('2023-12-13'),
+						('2024-01-01'),
+						('2024-01-02'),
+						('2024-02-18'),
+						('2024-03-23'),
+						('2024-03-27'),
+						('2024-04-24'),
+						('2024-04-30'),
+						('2024-08-22'),
+						('2024-10-11'),
+						('2024-12-24'),
+						('2024-12-31')
+			) AS x (value)
 )
 SELECT	*,
 		$PARTITION.pf_demo([value]) AS partition_id
-FROM	d
-OPTION	(MAXRECURSION 0);
+FROM	d;
 GO
 
 /*
@@ -192,3 +216,10 @@ FROM	sys.partition_functions AS PF
 ORDER BY
 		PRV.boundary_id;
 GO
+
+/*
+	Clean the environment before we go to the next chapter.
+*/
+IF EXISTS (SELECT * FROM sys.partition_functions WHERE name = N'pf_demo')
+	DROP PARTITION FUNCTION pf_demo;
+	GO

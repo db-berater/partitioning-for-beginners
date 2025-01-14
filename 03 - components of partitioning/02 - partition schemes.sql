@@ -70,6 +70,9 @@ CREATE TABLE dbo.demo_table
 ON ps_demo (c_partkey);
 GO
 
+SELECT * FROM dbo.get_partition_layout_info(N'dbo.demo_table', 1)
+GO
+
 
 /*
 	Follow the next steps to demonstrate how partitioning works:
@@ -140,10 +143,15 @@ DBCC SETINSTANCE ('SQLServer:User Settable', 'Query', 'User counter 1', 0);
 DBCC SETINSTANCE ('SQLServer:User Settable', 'Query', 'User counter 2', 0);
 DBCC SETINSTANCE ('SQLServer:User Settable', 'Query', 'User counter 3', 0);
 DBCC SETINSTANCE ('SQLServer:User Settable', 'Query', 'User counter 4', 0);
-
-EXEC dbo.partition_demo @number_of_rows = 2500;
 GO
 
+/* Now we start the stored procedure and insert 10,000 rows */
+EXEC dbo.partition_demo @number_of_rows = 10000;
+GO
+
+/*
+	How many rows do we have in each partition?
+*/
 SELECT	[1],
 		[2],
 		[3],

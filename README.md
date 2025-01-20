@@ -28,6 +28,8 @@ The demo database contains a framework for all workshops / sessions from db Bera
 + Stored Procedures
 + User Definied Inline Functions
 
+**Version:** 2025-01-20
+
 # Folder structure
 + Each topic is stored in a separate folder (e.g. 01 - Documents and Preparation)
 + All scripts have numbers and basically the script with the prefix 01 is for the preparation of the environment
@@ -57,9 +59,18 @@ This folder contains all scripts used to successfully partition the dbo.orders t
 # 05 - Partitioning - how to use
 The folder provides scripts for using the dbo.orders table partitioned in the previously created schema. It demonstrates which requirements the table must meet in order for partitioning to be successful.
 
-# 06 - Partitioning - Maintenance
+# ß6 - Querying Partitioned Data
+Scripts in this folder covers topics about partition elimination when using values from the partition boundaries
+It demonstrates that partitioning is not about improvement of query performance.
+Therefore we demonstrate the bad behavior of partitioned tables when it comes to aggregations
+
+# 07 - Partitioning - Maintenance
 This order provides scripts that demonstrate how to add new partition groups and how to remove existing partitions from the table.
 It is required that the dbo.orders table has been partitioned beforehand using the scripts.
+
+# 08 - Database - Maintenance
+Very large databases must be online very quick in case of Disaster Recovery.
+This folder contains demo scripts for an implementation strategy for backup restore and other maintenance work
 
 # 98 - Query Stress
 json template for Workload test.

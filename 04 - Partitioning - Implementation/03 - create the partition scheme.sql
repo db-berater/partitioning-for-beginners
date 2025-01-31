@@ -35,7 +35,8 @@ TO
 (
 	[PRIMARY], [orders_2010], [orders_2011], [orders_2012], [orders_2013],
 	[orders_2014], [orders_2015], [orders_2016], [orders_2017], [orders_2018],
-	[orders_2019], [orders_2020], [orders_2021], [orders_2022], [orders_2023]
+	[orders_2019], [orders_2020], [orders_2021], [orders_2022], [orders_2023],
+	[orders_2024], [orders_2025]
 );
 GO
 

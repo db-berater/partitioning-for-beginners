@@ -141,8 +141,8 @@ SELECT	o_orderdate,
         o_comment,
         o_storekey
 FROM	dbo.orders
-WHERE	o_orderdate >= '2011-01-01'
-		AND o_orderdate <= '2011-12-31';
+WHERE	o_orderdate >= '2010-01-01'
+		AND o_orderdate <= '2013-12-31';
 GO
 
 /*

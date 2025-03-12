@@ -35,8 +35,7 @@ TO
 (
 	[PRIMARY], [orders_2010], [orders_2011], [orders_2012], [orders_2013],
 	[orders_2014], [orders_2015], [orders_2016], [orders_2017], [orders_2018],
-	[orders_2019], [orders_2020], [orders_2021], [orders_2022], [orders_2023],
-	[orders_2024], [orders_2025]
+	[orders_2019], [orders_2020], [orders_2021], [orders_2022], [orders_2023]
 );
 GO
 
@@ -70,3 +69,15 @@ FROM	sys.partition_functions AS pf
 ORDER BY
 		prv.boundary_id;
 GO
+
+SELECT	dds.*,
+		fg.name
+FROM	sys.partition_functions AS pf
+		INNER JOIN sys.partition_schemes AS ps
+		ON (pf.function_id = ps.function_id)
+		INNER JOIN sys.destination_data_spaces AS dds
+		ON (ps.data_space_id = dds.partition_scheme_id)
+		INNER JOIN sys.filegroups AS fg
+		ON (dds.data_space_id = fg.data_space_id)
+
+SELECT * FROM sys.partition_range_values
